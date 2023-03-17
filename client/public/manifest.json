@@ -1,0 +1,10 @@
+{
+  "short_name": "Voice Command Oscilloscope",
+  "name": "Audio Visualizer & Voice Assist",
+  "icons": [
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "voice-recognition",
+  "version": "0.0.1",
+  "description": "voice recognition to accompany visualization",
+  "main": "src/index.js",
+  "engines": {
+    "node": "16.18.0"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.3",
+    "morgan": "^1.10.0",
+    "open": "^8.4.0",
+    "socket.io": "^4.4.1"
+  }
+}
