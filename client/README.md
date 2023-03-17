@@ -1,9 +1,3 @@
-# Voice Assited Oscilloscope
-
-### Audio Visualizer and Voice Assistant Bot
-- built using canvas and Socket.IO
-  - for goofing and practice purposes 
-
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
