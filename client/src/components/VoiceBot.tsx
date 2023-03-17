@@ -18,6 +18,8 @@ declare global {
 
 const VoiceBot: React.FC = () => {
   const [listening, setListening] = useState(false);
+  const [botSpeaking, setBotSpeaking] = useState(false);
+  const [noSpeech, setNoSpeech] = useState(false)
 
   const SpeechRecognition =
     window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -27,25 +29,29 @@ const VoiceBot: React.FC = () => {
     [SpeechRecognition]
   );
 
-  console.log("listening: ", listening);
+  console.log("botSpeaking: ", botSpeaking);
 
   recognition.lang = "en-US";
   recognition.interimResults = false;
   recognition.continuous = true;
 
-  
   const botSpeak = (text: string | undefined) => {
+    setBotSpeaking(true);
     //  .speechSynthesis (returns obj --> entry point into Web Speech API)
     const synth = window.speechSynthesis;
     //                    SpeechSynthesisUtterance
     const utterance = new SpeechSynthesisUtterance(text);
     synth.speak(utterance);
+
+    utterance.onend = () => {
+      setBotSpeaking(false);
+    };
   };
 
   const handleClick = () => {
     if (listening) {
       recognition.stop();
-      botSpeak("Until next time!");
+      botSpeak("OK bye, !");
       setListening(false);
     } else {
       botSpeak("Yo! What is good?!");
@@ -55,11 +61,14 @@ const VoiceBot: React.FC = () => {
   };
 
   useEffect(() => {
+
     recognition.onresult = (e: { results: string | any[] }) => {
       //console.log(e.results); // e.results :SpeechRecognitionResult object
       const last = e.results.length - 1;
       const text = e.results[last][0].transcript;
-      socket.emit("user message", text);
+      if (!botSpeaking) {
+        socket.emit("user message", text);
+      }
     };
 
     recognition.onspeechend = () => {
@@ -68,36 +77,31 @@ const VoiceBot: React.FC = () => {
 
     recognition.onerror = (e: { error: any }) => {
       console.log(e.error);
+      if (e.error === "no-speech") {
+        setNoSpeech(true);
+        setListening(false);
+        botSpeak("silence is ok too, ");
+      }
       recognition.stop();
     };
-  }, [recognition]);
+  }, [recognition, botSpeaking]);
 
   // open link with user speech
   useEffect(() => {
-    const handleBotMessage = (answer: { msg: any; link: any; }) => {
+    const handleBotMessage = (answer: { msg: any; link: any }) => {
       const { msg, link } = answer;
       botSpeak(msg);
       if (link) {
         window.open(link, "_blank");
       }
     };
-  
+
     socket.on("bot message", handleBotMessage);
-  
+
     return () => {
       socket.off("bot message", handleBotMessage);
-    }
+    };
   }, []);
-  
-  // useEffect(() => {
-  //   socket.on("bot message", (answer) => {
-  //     const { msg, link } = answer;
-  //     botSpeak(msg);
-  //     if (link) {
-  //       window.open(link, "_blank");
-  //     }
-  //   });
-  // }, []);
 
   return (
     <button onClick={handleClick}>
