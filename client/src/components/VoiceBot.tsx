@@ -15,25 +15,31 @@ declare global {
   }
 }
 
-const VoiceBot: React.FC = () => {
+type VoiceBotProps = {
+  setIsClicked: React.Dispatch<React.SetStateAction<boolean>>;
+  setText: React.Dispatch<React.SetStateAction<string>>;
+};
+
+const VoiceBot: React.FC<VoiceBotProps> = ({ setIsClicked, setText }: VoiceBotProps) => {
   const [listening, setListening] = useState(false);
   const [botSpeaking, setBotSpeaking] = useState(false);
 
   const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
+    window.SpeechRecognition || window.webkitSpeechRecognition || null;
 
-  const recognition = useMemo(
-    () => new SpeechRecognition(),
-    [SpeechRecognition]
-  );
-
-  console.log("listening: ", listening);
-  console.log("botSpeaking: ", botSpeaking);
+  const recognition = useMemo(() => {
+    if (!SpeechRecognition) {
+      console.log("Speech Recognition unavaiable.");
+    } else {
+      return new SpeechRecognition();
+    }
+  }, [SpeechRecognition]);
 
   recognition.lang = "en-US";
   recognition.interimResults = false;
   recognition.continuous = true;
 
+  // instantiate speechSynth and control recogintion start stop
   const botSpeak = useCallback(
     (text: string | undefined) => {
       //  .speechSynthesis (returns obj --> entry point into Web Speech API)
@@ -44,49 +50,66 @@ const VoiceBot: React.FC = () => {
 
       utterance.onstart = () => {
         recognition.stop();
-        console.log("recognition.stop()")
+        console.log("recognition.stop()");
         setBotSpeaking(true);
       };
       utterance.onend = () => {
         recognition.start();
-        console.log("recognition.start()")
+        console.log("recognition.start()");
         setBotSpeaking(false);
       };
     },
     [recognition]
   );
 
+  // start / stop listening with button
   const handleClick = () => {
     if (listening) {
       setListening(false);
+      setText("")
       botSpeak("OK bye, !");
+      
       const stopDelay = setTimeout(() => {
         recognition.stop();
-        console.log("recognition.stop()")
+        console.log("recognition.stop()");
+        // setIsClicked(false);
         return () => clearTimeout(stopDelay);
-      }, 900);
-
+      }, 1200);
     } else {
-      botSpeak("Yo! What is good?!");
+      setIsClicked(true);
       setListening(true);
+      botSpeak("Yo! What is good?!");
     }
   };
 
-
+  // matches sent from user
   useEffect(() => {
     recognition.onresult = (e: { results: string | any[] }) => {
       //console.log(e.results); // e.results :SpeechRecognitionResult object
       const last = e.results.length - 1;
       const text = e.results[last][0].transcript;
+
+      console.log("text: ", text);
+
+      // send msg to server
       if (!botSpeaking) {
         socket.emit("user message", text);
+        setText(text)
+      }
+      if (text === "end transmission" || text === "and transmission") {
+        const stopDelay = setTimeout(() => {
+          setListening(false);
+          recognition.stop();
+          console.log("recognition.stop() end-transmission");
+          return () => clearTimeout(stopDelay);
+        }, 1700);
       }
     };
 
     recognition.onspeechend = () => {
       recognition.stop();
     };
-  }, [recognition, botSpeaking]);
+  }, [recognition, botSpeaking, setText]);
 
 
   useEffect(() => {
@@ -99,7 +122,7 @@ const VoiceBot: React.FC = () => {
 
         const stopDelay = setTimeout(() => {
           recognition.stop();
-          console.log("recognition.stop()")
+          console.log("recognition.stop() no-speech");
           return () => clearTimeout(stopDelay);
         }, 1900);
       }
@@ -107,7 +130,7 @@ const VoiceBot: React.FC = () => {
     };
   }, [botSpeak, recognition]);
 
-  // open link with user speech
+  // open link with user speech and -botSpeak-
   useEffect(() => {
     const handleBotMessage = (answer: { msg: any; link: any }) => {
       const { msg, link } = answer;

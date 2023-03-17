@@ -23,12 +23,27 @@ io.on("connection", function(socket) {
     const lastWord = arr[arr.length-1];
     const msg1 = `Here are some results for ${text}`;
     const msg2 = `Here is the current weather in ${lastWord}`;
+    const msg3 = `Here's the current time in ${lastWord}`;
+    const msg4 = `Let us get funky.`
+    const msg5 = `Here is a useful app for shows near you.`
+
+    const end = `Transmission ended.`;
 
     console.log(text);
 
     const searchQuery = `https://www.google.com/search?q=${encodeURIComponent(text)}`;
+    const showFinder = `https://www.showfinder.ninja/`
+
     if (text.includes("weather") || text.includes("temperature")) {
       socket.emit("bot message", { msg: msg2, link: searchQuery });
+    } else if (text.includes("time")) {
+      socket.emit("bot message", { msg: msg3, link: searchQuery });
+    } else if (text.includes("prince") || text.includes("james brown")) {
+      socket.emit("bot message", { msg: msg4, link: searchQuery });
+    } else if (text.includes("show finder") || text.includes("shows") || text.includes("shows near me")) {
+      socket.emit("bot message", { msg: msg5, link: showFinder });
+    } else if (text.includes("end transmission") || text.includes("and transmission")) {
+      socket.emit("bot message", { msg: end, link: null });
     } else {
       socket.emit("bot message", { msg: msg1, link: searchQuery });
     }

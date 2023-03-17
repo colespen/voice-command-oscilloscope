@@ -4,12 +4,13 @@ canvas {
 }
 
 button {
-  bottom: 200px;
+  opacity: 0;
+  cursor: pointer;
+   width: 100%;
+  height: 800px;
   position: absolute;
   background-color: #2c2c2c;
   color: #d1d1d1;
-  height: 40px;
-  width: 180px;
   display: flex;
   align-items: center;
 }
