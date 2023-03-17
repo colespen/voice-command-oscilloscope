@@ -28,13 +28,12 @@ const VoiceBot: React.FC = () => {
   );
 
   console.log("listening: ", listening);
-  console.log("recognition: ", recognition);
 
   recognition.lang = "en-US";
   recognition.interimResults = false;
   recognition.continuous = true;
 
-  // fn to receive msg from server
+  
   const botSpeak = (text: string | undefined) => {
     //  .speechSynthesis (returns obj --> entry point into Web Speech API)
     const synth = window.speechSynthesis;
@@ -75,14 +74,30 @@ const VoiceBot: React.FC = () => {
 
   // open link with user speech
   useEffect(() => {
-    socket.on("bot message", (answer) => {
+    const handleBotMessage = (answer: { msg: any; link: any; }) => {
       const { msg, link } = answer;
       botSpeak(msg);
       if (link) {
         window.open(link, "_blank");
       }
-    });
+    };
+  
+    socket.on("bot message", handleBotMessage);
+  
+    return () => {
+      socket.off("bot message", handleBotMessage);
+    }
   }, []);
+  
+  // useEffect(() => {
+  //   socket.on("bot message", (answer) => {
+  //     const { msg, link } = answer;
+  //     botSpeak(msg);
+  //     if (link) {
+  //       window.open(link, "_blank");
+  //     }
+  //   });
+  // }, []);
 
   return (
     <button onClick={handleClick}>
