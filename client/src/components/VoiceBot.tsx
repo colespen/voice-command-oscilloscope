@@ -29,17 +29,12 @@ const VoiceBot: React.FC<VoiceBotProps> = ({
   const [botSpeaking, setBotSpeaking] = useState(false);
 
   const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition || null;
+    window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    const recognition = useMemo(() => new SpeechRecognition(), [SpeechRecognition])
-
-  // const recognition = useMemo(() => {
-  //   if (!SpeechRecognition) {
-  //     alert("Speech Recognition unavaiable.");
-  //   } else {
-  //     return new SpeechRecognition();
-  //   }
-  // }, [SpeechRecognition]);
+  const recognition = useMemo(
+    () => new SpeechRecognition(),
+    [SpeechRecognition]
+  );
 
   recognition.lang = "en-US";
   recognition.interimResults = false;
