@@ -24,7 +24,7 @@ io.on("connection", function(socket) {
     const msg1 = `Here are some results for ${text}`;
     const msg2 = `Here is the current weather in ${lastWord}`;
     const msg3 = `Here's the current time in ${lastWord}`;
-    const msg4 = `Let us get funky.`
+    const msg4 = `Let's get funky!`
     const msg5 = `Here is a useful app for shows near you.`
 
     const end = `Transmission ended.`;
@@ -38,7 +38,7 @@ io.on("connection", function(socket) {
       socket.emit("bot message", { msg: msg2, link: searchQuery });
     } else if (text.includes("time")) {
       socket.emit("bot message", { msg: msg3, link: searchQuery });
-    } else if (text.includes("prince") || text.includes("james brown")) {
+    } else if (text.includes("Prince") || text.includes("James Brown")) {
       socket.emit("bot message", { msg: msg4, link: searchQuery });
     } else if (text.includes("show finder") || text.includes("shows") || text.includes("shows near me")) {
       socket.emit("bot message", { msg: msg5, link: showFinder });

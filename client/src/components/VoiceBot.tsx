@@ -3,7 +3,7 @@ import io from "socket.io-client";
 
 import "./index.css";
 
-const SERVER = "http://127.0.0.1:8001";
+const SERVER = "https://voice-command-oscilloscope-server.onrender.com";
 const socket = io(SERVER, {
   transports: ["websocket"],
 });
@@ -20,7 +20,10 @@ type VoiceBotProps = {
   setText: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const VoiceBot: React.FC<VoiceBotProps> = ({ setIsClicked, setText }: VoiceBotProps) => {
+const VoiceBot: React.FC<VoiceBotProps> = ({
+  setIsClicked,
+  setText,
+}: VoiceBotProps) => {
   const [listening, setListening] = useState(false);
   const [botSpeaking, setBotSpeaking] = useState(false);
 
@@ -66,15 +69,15 @@ const VoiceBot: React.FC<VoiceBotProps> = ({ setIsClicked, setText }: VoiceBotPr
   const handleClick = () => {
     if (listening) {
       setListening(false);
-      setText("")
+      setText("");
       botSpeak("OK bye, !");
-      
+
       const stopDelay = setTimeout(() => {
         recognition.stop();
         console.log("recognition.stop()");
-        // setIsClicked(false);
         return () => clearTimeout(stopDelay);
       }, 1200);
+
     } else {
       setIsClicked(true);
       setListening(true);
@@ -88,19 +91,22 @@ const VoiceBot: React.FC<VoiceBotProps> = ({ setIsClicked, setText }: VoiceBotPr
       //console.log(e.results); // e.results :SpeechRecognitionResult object
       const last = e.results.length - 1;
       const text = e.results[last][0].transcript;
-
       console.log("text: ", text);
+
+      const arr = text.split(" ");
+      const subStr = arr.length > 3 ? arr.slice(0, 3).join(" ") + "..." : text;
 
       // send msg to server
       if (!botSpeaking) {
         socket.emit("user message", text);
-        setText(text)
+        setText(subStr);
       }
       if (text === "end transmission" || text === "and transmission") {
         const stopDelay = setTimeout(() => {
           setListening(false);
           recognition.stop();
           console.log("recognition.stop() end-transmission");
+          setText("");
           return () => clearTimeout(stopDelay);
         }, 1700);
       }
@@ -111,7 +117,7 @@ const VoiceBot: React.FC<VoiceBotProps> = ({ setIsClicked, setText }: VoiceBotPr
     };
   }, [recognition, botSpeaking, setText]);
 
-
+  // stop on error or silence timeout
   useEffect(() => {
     recognition.onerror = (e: { error: any }) => {
       console.log("onerror: ", e.error);
@@ -123,12 +129,13 @@ const VoiceBot: React.FC<VoiceBotProps> = ({ setIsClicked, setText }: VoiceBotPr
         const stopDelay = setTimeout(() => {
           recognition.stop();
           console.log("recognition.stop() no-speech");
+          setText("");
           return () => clearTimeout(stopDelay);
         }, 1900);
       }
       recognition.stop();
     };
-  }, [botSpeak, recognition]);
+  }, [botSpeak, recognition, setText]);
 
   // open link with user speech and -botSpeak-
   useEffect(() => {
