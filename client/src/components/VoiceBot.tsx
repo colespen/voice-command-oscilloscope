@@ -31,13 +31,15 @@ const VoiceBot: React.FC<VoiceBotProps> = ({
   const SpeechRecognition =
     window.SpeechRecognition || window.webkitSpeechRecognition || null;
 
-  const recognition = useMemo(() => {
-    if (!SpeechRecognition) {
-      console.log("Speech Recognition unavaiable.");
-    } else {
-      return new SpeechRecognition();
-    }
-  }, [SpeechRecognition]);
+    const recognition = useMemo(() => new SpeechRecognition(), [SpeechRecognition])
+
+  // const recognition = useMemo(() => {
+  //   if (!SpeechRecognition) {
+  //     alert("Speech Recognition unavaiable.");
+  //   } else {
+  //     return new SpeechRecognition();
+  //   }
+  // }, [SpeechRecognition]);
 
   recognition.lang = "en-US";
   recognition.interimResults = false;
@@ -126,14 +128,14 @@ const VoiceBot: React.FC<VoiceBotProps> = ({
 
       if (e.error === "no-speech") {
         setListening(false);
-        botSpeak("silence is ok too, ");
+        botSpeak("Transmission ended.");
 
         const stopDelay = setTimeout(() => {
           recognition.stop();
           console.log("recognition.stop() no-speech");
           setText("");
           return () => clearTimeout(stopDelay);
-        }, 1900);
+        }, 1700);
       }
       recognition.stop();
     };

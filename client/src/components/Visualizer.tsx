@@ -7,14 +7,14 @@ type visualizeDataProps = {
   text: string;
 };
 
-const Visualizer: React.FC<visualizeDataProps> = ({isClicked, text}) => {
+const Visualizer: React.FC<visualizeDataProps> = ({ isClicked, text }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const analyser = useRef<AnalyserNode | null>(null);
   const devicePixelRatio = window.devicePixelRatio || 1;
 
+  console.log("text state: ", text)
 
-
-  // draw to canvas
+  // Draw to canvas
   const visualizeData = useCallback(() => {
     let animationController: number | null;
     animationController = window.requestAnimationFrame(visualizeData);
@@ -40,12 +40,19 @@ const Visualizer: React.FC<visualizeDataProps> = ({isClicked, text}) => {
 
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
-    ctx.lineWidth = 2.5;
-    ctx.strokeStyle = "#00f125";
     ctx.beginPath();
     const sliceWidth = (WIDTH * 1.0) / bufferLength;
     let x = 0;
+    
+    if (!isClicked) {
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = "#00c01b";
+      ctx.font = "125px sans-serif";
+      ctx.strokeText("Speak & Surf.", 10, HEIGHT / 2.007);
+    }
 
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#00f125";
     for (let i = 0; i < bufferLength; i++) {
       // const v = dataArray[i] / 128.0; (for Uint8Array)
       const v = dataArray[i];
@@ -60,18 +67,15 @@ const Visualizer: React.FC<visualizeDataProps> = ({isClicked, text}) => {
     ctx.lineTo(WIDTH, HEIGHT / 2);
     ctx.stroke();
 
-    if (!isClicked) {
-      ctx.font = "125px sans-serif";
-      ctx.strokeText("Speak & Surf", 10, HEIGHT / 2.01);
-    }
-    
     if (isClicked) {
-      ctx.font = "125px sans-serif";
-      ctx.strokeText(text, 10, HEIGHT / 2.01);
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = "#00f125a8";
+      ctx.font = "115px sans-serif";
+      ctx.strokeText(text, 10, HEIGHT / 2.007);
     }
   }, [devicePixelRatio, isClicked, text]);
 
-  //create new context
+  //Create new context
   const handleAudioPlay = useCallback(async () => {
     if (!analyser.current) {
       try {
