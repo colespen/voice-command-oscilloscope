@@ -3,7 +3,8 @@ import io from "socket.io-client";
 
 import "./index.css";
 
-const SERVER = "https://voice-command-oscilloscope-server.onrender.com";
+// const SERVER = "https://voice-command-oscilloscope-server.onrender.com";
+const SERVER = "http://127.0.0.1:8001";
 const socket = io(SERVER, {
   transports: ["websocket"],
 });
@@ -77,7 +78,6 @@ const VoiceBot: React.FC<VoiceBotProps> = ({
         console.log("recognition.stop()");
         return () => clearTimeout(stopDelay);
       }, 1200);
-
     } else {
       setIsClicked(true);
       setListening(true);
@@ -93,13 +93,15 @@ const VoiceBot: React.FC<VoiceBotProps> = ({
       const text = e.results[last][0].transcript;
       console.log("text: ", text);
 
-      const arr = text.split(" ");
-      const subStr = arr.length > 3 ? arr.slice(0, 3).join(" ") + "..." : text;
+      const subStr = text.length > 15 ? text.substring(0, 18) + "..." : text;
 
       // send msg to server
       if (!botSpeaking) {
         socket.emit("user message", text);
-        setText(subStr);
+        const writeDelay = setTimeout(() => {
+          setText(subStr);
+          return () => clearTimeout(writeDelay);
+        }, 250);
       }
       if (text === "end transmission" || text === "and transmission") {
         const stopDelay = setTimeout(() => {
