@@ -3,8 +3,8 @@ import io from "socket.io-client";
 
 import "./index.css";
 
-// const SERVER = "https://voice-command-oscilloscope-server.onrender.com";
-const SERVER = "http://127.0.0.1:8001";
+const SERVER = "https://voice-command-oscilloscope-server.onrender.com";
+// const SERVER = "http://127.0.0.1:8001";
 const socket = io(SERVER, {
   transports: ["websocket"],
 });
