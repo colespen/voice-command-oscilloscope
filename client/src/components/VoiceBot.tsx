@@ -4,7 +4,6 @@ import io from "socket.io-client";
 import "./index.css";
 
 const SERVER = "http://127.0.0.1:8001";
-//Temporary fix?
 const socket = io(SERVER, {
   transports: ["websocket"],
 });
@@ -19,7 +18,7 @@ declare global {
 const VoiceBot: React.FC = () => {
   const [listening, setListening] = useState(false);
   const [botSpeaking, setBotSpeaking] = useState(false);
-  const [noSpeech, setNoSpeech] = useState(false)
+  // const [noSpeech, setNoSpeech] = useState(false)
 
   const SpeechRecognition =
     window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -61,7 +60,6 @@ const VoiceBot: React.FC = () => {
   };
 
   useEffect(() => {
-
     recognition.onresult = (e: { results: string | any[] }) => {
       //console.log(e.results); // e.results :SpeechRecognitionResult object
       const last = e.results.length - 1;
@@ -78,7 +76,7 @@ const VoiceBot: React.FC = () => {
     recognition.onerror = (e: { error: any }) => {
       console.log(e.error);
       if (e.error === "no-speech") {
-        setNoSpeech(true);
+        // setNoSpeech(true);
         setListening(false);
         botSpeak("silence is ok too, ");
       }

@@ -1,4 +1,4 @@
-# Voice Assited Oscilloscope
+# Voice Assitant Oscilloscope
 
 ### Audio Visualizer and Voice Assistant Bot
 - built using Socket.IO, Web Speech API & Canvas API

@@ -1,6 +1,6 @@
 {
   "short_name": "Voice Command Oscilloscope",
-  "name": "Audio Visualizer & Voice Assist",
+  "name": "Voice Assist & Audio Visualizer",
   "icons": [
   ],
   "start_url": ".",
