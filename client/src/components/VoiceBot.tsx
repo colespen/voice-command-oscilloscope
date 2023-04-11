@@ -3,8 +3,8 @@ import io from "socket.io-client";
 
 import "./index.css";
 
-const SERVER = "https://voice-command-oscilloscope-server.onrender.com";
-// const SERVER = "http://127.0.0.1:8001";
+// const SERVER = "https://voice-command-oscilloscope-server.onrender.com";
+const SERVER = "http://127.0.0.1:8001";
 const socket = io(SERVER, {
   transports: ["websocket"],
 });
@@ -18,12 +18,12 @@ declare global {
 
 type VoiceBotProps = {
   setIsClicked: React.Dispatch<React.SetStateAction<boolean>>;
-  setText: React.Dispatch<React.SetStateAction<string>>;
+  setUserText: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const VoiceBot: React.FC<VoiceBotProps> = ({
   setIsClicked,
-  setText,
+  setUserText,
 }: VoiceBotProps) => {
   const [listening, setListening] = useState(false);
   const [botSpeaking, setBotSpeaking] = useState(false);
@@ -66,46 +66,67 @@ const VoiceBot: React.FC<VoiceBotProps> = ({
   // start / stop listening with button
   const handleClick = () => {
     if (listening) {
+      setUserText("");
+      setIsClicked(false);
       setListening(false);
-      setText("");
       botSpeak("OK bye, !");
 
       const stopDelay = setTimeout(() => {
         recognition.stop();
         console.log("recognition.stop()");
+        setUserText("Click to Surf.");
         return () => clearTimeout(stopDelay);
       }, 1200);
     } else {
+      setUserText("");
       setIsClicked(true);
       setListening(true);
       botSpeak("Yo! What is good?!");
+
+      const startDelay = setTimeout(() => {
+        setUserText("listening...");
+        return () => clearTimeout(startDelay);
+      }, 2000);
     }
   };
 
   // matches sent from user
   useEffect(() => {
     recognition.onresult = (e: { results: string | any[] }) => {
-      //console.log(e.results); // e.results :SpeechRecognitionResult object
+      //console.log(e.results);
+      // e.results: SpeechRecognitionResult object
       const last = e.results.length - 1;
       const text = e.results[last][0].transcript;
       console.log("text: ", text);
 
       const subStr = text.length > 15 ? text.substring(0, 18) + "..." : text;
 
-      // send msg to server
+      // send msg to server w .emit() and set UI text
       if (!botSpeaking) {
         socket.emit("user message", text);
         const writeDelay = setTimeout(() => {
-          setText(subStr);
+          if (
+            text === "end transmission" ||
+            text === "and transmission" ||
+            text === "close transmission"
+          ) {
+            setUserText("Transmission Ended.");
+          } else {
+            setUserText(subStr);
+          }
           return () => clearTimeout(writeDelay);
         }, 250);
       }
-      if (text === "end transmission" || text === "and transmission") {
+      if (
+        text === "end transmission" ||
+        text === "and transmission" ||
+        text === "close transmission"
+      ) {
         const stopDelay = setTimeout(() => {
           setListening(false);
           recognition.stop();
+          setUserText("Click to Surf.");
           console.log("recognition.stop() end-transmission");
-          setText("");
           return () => clearTimeout(stopDelay);
         }, 1700);
       }
@@ -114,7 +135,7 @@ const VoiceBot: React.FC<VoiceBotProps> = ({
     recognition.onspeechend = () => {
       recognition.stop();
     };
-  }, [recognition, botSpeaking, setText]);
+  }, [recognition, botSpeaking, setUserText]);
 
   // stop on error or silence timeout
   useEffect(() => {
@@ -123,26 +144,27 @@ const VoiceBot: React.FC<VoiceBotProps> = ({
 
       if (e.error === "no-speech") {
         setListening(false);
-        botSpeak("Transmission ended.");
+        botSpeak("I couldn't hear you.");
+        setUserText("I coudn't hear you.");
 
         const stopDelay = setTimeout(() => {
           recognition.stop();
+          setUserText("Click to Surf.");
           console.log("recognition.stop() no-speech");
-          setText("");
           return () => clearTimeout(stopDelay);
         }, 1700);
       }
       recognition.stop();
     };
-  }, [botSpeak, recognition, setText]);
+  }, [botSpeak, recognition, setUserText]);
 
   // open link with user speech and -botSpeak-
   useEffect(() => {
-    const handleBotMessage = (answer: { msg: any; link: any }) => {
+    const handleBotMessage = (answer: { msg: string; link: string }) => {
       const { msg, link } = answer;
       botSpeak(msg);
       if (link) {
-        window.open(link, "_blank");
+        window.open(link, "_blank", "noreferrer");
       }
     };
     socket.on("bot message", handleBotMessage);
@@ -153,11 +175,7 @@ const VoiceBot: React.FC<VoiceBotProps> = ({
   }, [botSpeak]);
 
   return (
-    <button onClick={handleClick}>
-      <img alt="mic" src="./mic.png" />
-      {""}
-      {listening ? "Listening ..." : "Click to Speak & Surf"}
-    </button>
+    <button onClick={handleClick}>{/* fyi this div is overlapped */}</button>
   );
 };
 

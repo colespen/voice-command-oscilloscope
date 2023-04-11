@@ -12,7 +12,8 @@ const Visualizer: React.FC<visualizeDataProps> = ({ isClicked, text }) => {
   const analyser = useRef<AnalyserNode | null>(null);
   const devicePixelRatio = window.devicePixelRatio || 1;
 
-  console.log("text state: ", text)
+  console.log("text state -- Visualizer: ", text)
+  console.log("isClicked -- Visualizer: ", isClicked)
 
   // Draw to canvas
   const visualizeData = useCallback(() => {
@@ -44,11 +45,12 @@ const Visualizer: React.FC<visualizeDataProps> = ({ isClicked, text }) => {
     const sliceWidth = (WIDTH * 1.0) / bufferLength;
     let x = 0;
     
+    
     if (!isClicked) {
       ctx.lineWidth = 2.5;
       ctx.strokeStyle = "#00c01b";
       ctx.font = "125px sans-serif";
-      ctx.strokeText("Speak & Surf.", 10, HEIGHT / 2.007);
+      ctx.strokeText(text, 10, HEIGHT / 2.007);
     }
 
     ctx.lineWidth = 3;
@@ -75,7 +77,7 @@ const Visualizer: React.FC<visualizeDataProps> = ({ isClicked, text }) => {
     }
   }, [devicePixelRatio, isClicked, text]);
 
-  //Create new context
+  //Create new audio context
   const handleAudioPlay = useCallback(async () => {
     if (!analyser.current) {
       try {

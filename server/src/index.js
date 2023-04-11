@@ -42,7 +42,8 @@ io.on("connection", function(socket) {
       socket.emit("bot message", { msg: msg4, link: searchQuery });
     } else if (text.includes("show finder") || text.includes("shows") || text.includes("shows near me")) {
       socket.emit("bot message", { msg: msg5, link: showFinder });
-    } else if (text.includes("end transmission") || text.includes("and transmission")) {
+    } else if (text.includes("end transmission") || text.includes("and transmission")
+    || text.includes("close transmission")) {
       socket.emit("bot message", { msg: end, link: null });
     } else {
       socket.emit("bot message", { msg: msg1, link: searchQuery });
