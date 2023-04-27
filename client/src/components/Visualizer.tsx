@@ -12,8 +12,8 @@ const Visualizer: React.FC<visualizeDataProps> = ({ isClicked, text }) => {
   const analyser = useRef<AnalyserNode | null>(null);
   const devicePixelRatio = window.devicePixelRatio || 1;
 
-  console.log("text state -- Visualizer: ", text)
-  console.log("isClicked -- Visualizer: ", isClicked)
+  console.log("text state -- Visualizer: ", text);
+  console.log("isClicked -- Visualizer: ", isClicked);
 
   // Draw to canvas
   const visualizeData = useCallback(() => {
@@ -44,8 +44,7 @@ const Visualizer: React.FC<visualizeDataProps> = ({ isClicked, text }) => {
     ctx.beginPath();
     const sliceWidth = (WIDTH * 1.0) / bufferLength;
     let x = 0;
-    
-    
+
     if (!isClicked) {
       ctx.lineWidth = 2.5;
       ctx.strokeStyle = "#00c01b";
@@ -103,11 +102,7 @@ const Visualizer: React.FC<visualizeDataProps> = ({ isClicked, text }) => {
     handleAudioPlay();
   }, [handleAudioPlay]);
 
-  return (
-    <>
-      <canvas ref={canvasRef} />
-    </>
-  );
+  return <canvas ref={canvasRef} />;
 };
 
 export default Visualizer;
